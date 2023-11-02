@@ -1,18 +1,26 @@
 
-FROM node:12 as node 
+# Étape 1 : Construction de l'application Angular
+FROM node:12 as node
 
 WORKDIR /app
 
 COPY package*.json ./
 
 RUN npm cache clean --force
-RUN npm install -f
+RUN npm install
 
 COPY . .
 RUN npm install -g @angular/cli@12.0.5
-RUN npm run build --prod
+RUN ng build --prod
 
-CMD ["ng", "serve","--host","0,0,0,0","--port","4200"]
+# Étape 2 : Exécution de l'application Angular
+FROM nginx:latest
+
+COPY --from=node /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
 
 
 
