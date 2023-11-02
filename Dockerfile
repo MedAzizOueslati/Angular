@@ -1,24 +1,18 @@
-FROM node:16.15.1-alpine AS builder
+
+FROM node:12 as node 
 
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+COPY package*.json ./
 
-RUN npm install -g @angular/cli
-RUN npm install
+RUN npm cache clean --force
+RUN npm install -f
 
 COPY . .
+RUN npm install -g @angular/cli@12.0.5
+RUN npm run build --prod
 
-RUN ng build --configuration=production
-
-FROM nginx:latest
-
-COPY --from=builder /app/dist/client /usr/share/nginx/html
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
-
+CMD ["ng", "serve","--host","0,0,0,0","--port","4200"]
 
 
 
